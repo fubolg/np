@@ -1,0 +1,54 @@
+body {
+    display: flex;
+}
+
+form {
+    display: inline-flex;
+    flex-direction: column;
+    margin: 0 auto;
+}
+
+form > * {
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    text-align: center;
+}
+
+.form-content, .btn-group {
+    display: flex;
+}
+
+.form-content > * {
+    flex-direction: row;
+}
+
+.btn-group {
+    flex-direction: column;
+}
+
+.btn-group .btn {
+    flex: 1;
+    display: block;
+    width: 100%;
+    font-size: 15px;
+    text-transform: uppercase;
+    margin: 1px 5px;
+}
+
+.form-result {
+    margin-top: 5px;
+    padding: 10px;
+    color: forestgreen;
+    border: 2px solid forestgreen;
+}
+
+.form-result.error {
+    color: darkred;
+    border: 2px solid darkred;
+}
+
+#dates {
+    text-align: center;
+    line-height: 40px;
+}

@@ -1,0 +1,44 @@
+version: '3.7'
+services:
+  httpd:
+    container_name: np_httpd
+    build: ./docker/httpd
+    volumes:
+      - ./:/var/www/np:cached
+      - ./docker/httpd/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
+      - ./docker/httpd/sites-enabled/np.conf:/usr/local/apache2/conf/sites-enabled/np.conf
+#      - ./docker/httpd/logs/:/usr/local/apache2/logs/:ro
+    ports:
+      - 12001:80
+    depends_on:
+      - php
+  php:
+    container_name: np_php
+    build: ./docker/php
+    expose:
+      - 9000
+    volumes:
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini:ro
+      - ~/.ssh:/root/.ssh
+      - .:/var/www/np:cached
+      - ./docker/runtime/.config/composer:/var/www/.composer
+      - symfony_cache:/tmp/np:rw
+    working_dir: /var/www/np
+    depends_on:
+      - db
+
+  db:
+    container_name: np_db
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - ./docker/db/data:/var/lib/mysql
+    expose:
+      - 3306
+    ports:
+      - 3310:3306
+
+volumes:
+  symfony_cache:
