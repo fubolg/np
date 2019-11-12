@@ -9,14 +9,21 @@ class Controller extends AbstractController
     {
         $params = [];
 
-        if ($body = $this->getRequestBody()) {
-            $bodyParams = $this->parseJson($body, true);
+        try {
+            $bodyParams = $this->getRequestParams();
+            $this->validate($bodyParams);
 
-            if ($this->validate($bodyParams)) {
-                $analytics = $this->prepareAnalytics($bodyParams['dates']);
-                $params['days'] = $analytics['days'];
+            if (isset($bodyParams['dates'])) {
+                $analytics = $this->prepareAnalyticsData($bodyParams['dates']);
+                $params['result'] = $analytics['result'];
+
+                $this->model->insertAnalytics($analytics);
+            }
+        } catch (\Exception $e) {
+            if ($this->isAjax()) {
+                $params['error'] = $e->getMessage();
             } else {
-                $params['errors'] = $this->getErrors();
+                throw $e;
             }
         }
 
@@ -29,27 +36,36 @@ class Controller extends AbstractController
 
     private function validate($bodyParams)
     {
-        if (!isset($bodyParams['dates'])) {
-            $this->addError('Required parameter `dates` is miss!');
-        } elseif (!preg_match("/^[0-9]{4}\/[0-1][0-9]\/[0-3][0-9]\s?-\s?[0-1][0-9].[0-3][0-9].[0-9]{4}$/", $bodyParams['dates'])) {
-            $this->addError('Parameter `dates` is not match to necessary format `yyyy/mm/dd - mm.dd.yyyy`!');
+        if (isset($bodyParams['dates']) && !preg_match("/^[0-9]{4}\/[0-1][0-9]\/[0-3][0-9]\s?-\s?[0-1][0-9].[0-3][0-9].[0-9]{4}$/", $bodyParams['dates'])) {
+            throw new \Exception('Parameter `dates` is not match to necessary format `yyyy/mm/dd - mm.dd.yyyy`!');
         }
 
-        return count($this->getErrors()) === 0;
+        return true;
     }
 
-    private function prepareAnalytics($dates)
+    private function prepareAnalyticsData($dates)
     {
         $analytics = [];
         $dates = explode('-', $dates);
         $leftDate = trim($dates[0]);
         $rightDate = trim($dates[1]);
 
-        $analytics['leftOperand'] = \DateTime::createFromFormat('Y/m/d', $leftDate);
-        $analytics['rightOperand'] = \DateTime::createFromFormat('m.d.Y', $rightDate);
+        $leftOperand = \DateTime::createFromFormat('Y/m/d', $leftDate);
+        $rightOperand = \DateTime::createFromFormat('m.d.Y', $rightDate);
 
-        $interval = $analytics['leftOperand']->diff($analytics['rightOperand']);
-        $analytics['days'] = $interval->d;
+        if  (!$leftOperand instanceof \DateTime) {
+            throw new \Exception(sprintf('Unable to convert %s string to DateTime!', $leftDate));
+        }
+
+        if  (!$rightOperand instanceof \DateTime) {
+            throw new \Exception(sprintf('Unable to convert %s string to DateTime!', $rightDate));
+        }
+
+        $interval = $leftOperand->diff($rightOperand);
+        $analytics['leftOperand'] = $leftOperand;
+        $analytics['rightOperand'] = $rightOperand;
+        $analytics['result'] = $interval->d;
+        $analytics['ip'] = $this->getClientIp();
 
         return $analytics;
     }

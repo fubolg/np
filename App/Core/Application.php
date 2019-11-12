@@ -13,6 +13,7 @@ class Application
             $router = new Router();
             $router->route();
         } catch (\Exception $exception) {
+            var_dump($exception);
             header('X-Error-Message: ' . $exception->getMessage(), true, 500);
             die;
         }

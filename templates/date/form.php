@@ -6,5 +6,5 @@
             <button class="btn" id="ajax" >AJAX</button>
         </div>
     </div>
-    <div class="form-result">% <span class="message"><?php echo isset($days) ? $days : ''; ?></span>  %</div>
+    <div class="form-result">% <span class="message"><?php echo isset($result) ? $result : ''; ?></span>  %</div>
 </form>

@@ -1,6 +1,7 @@
 <?php
 namespace App\Core;
 
+use App\Model\Model;
 
 abstract class AbstractController
 {
@@ -8,14 +9,13 @@ abstract class AbstractController
      * @var View
      */
     protected $view;
-
+    protected $model;
     protected $layout = 'main.php';
-
-    protected $errors = [];
 
     public function __construct()
     {
         $this->view = new View();
+        $this->model = new Model();
     }
 
     abstract function actionIndex();
@@ -50,8 +50,22 @@ abstract class AbstractController
         return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
 
-    protected function getRequestBody() {
-        return file_get_contents('php://input');
+    protected function getRequestParams() {
+
+        $method = $_SERVER['REQUEST_METHOD'];
+
+        switch ($method) {
+            case ('GET') :
+                $params = $_GET;
+                break;
+            case  ('POST') :
+                $params = $_POST;
+                break;
+            default:
+                $params = [];
+        }
+
+        return $params;
     }
 
     protected function getClientIp()
@@ -72,28 +86,9 @@ abstract class AbstractController
     protected function parseJson($json, $assoc = false, $depth = 512, $options = 0)
     {
         $result = json_decode($json, $assoc, $depth, $options);
-        $resultMessage = json_last_error();
-        if ($resultMessage !== JSON_ERROR_NONE) {
-            if (is_bool($resultMessage)) {
-                $resultMessage = 'Json Parse Error';
-            }
-
-            throw new \JsonException($resultMessage);
+        $jsonStatusCode = json_last_error();
+        if ($jsonStatusCode !== JSON_ERROR_NONE) {
+            throw new \JsonException('Json Parse Error');
         }
-    }
-
-    protected function getErrors()
-    {
-        return $this->errors;
-    }
-
-    protected function addError($error)
-    {
-        $this->errors[] = $error;
-    }
-
-    protected function clearErrors()
-    {
-        $this->errors = [];
     }
 }

@@ -1,13 +1,26 @@
 $(document).ready(function() {
-    let $formResult = $('#dates-form .form-result'),
+    let $form = $('#dates-form'),
+        $formResult = $('#dates-form .form-result'),
         $formResultMessage = $('#dates-form .form-result .message'),
+        setErrorMessage = (message) => {
+            if (!$formResult.hasClass('error')) {
+                $formResult.addClass('error');
+            }
+
+            $formResultMessage.text(message);
+        },
+        setSuccessMessage = (message) => {
+            if ($formResult.hasClass('error')) {
+                $formResult.removeClass('error');
+            }
+
+            $formResultMessage.text(message);
+        },
         validateInput = () => {
             let isValid = $('#dates').inputmask('isComplete');
 
             if (!isValid) {
-                $formResult.addClass('error');
-
-                $formResultMessage.text('Please Fill Dates Correctly');
+                setErrorMessage('Please Fill Dates Correctly');
             }
 
             return isValid;
@@ -16,10 +29,7 @@ $(document).ready(function() {
     $('#dates').inputmask("9999/99/99 - 99.99.9999", {
         "placeholder": "YYYY/mm/dd - mm.dd.YYYY",
         isComplete: function(buffer, opts) {
-            if ($formResult.hasClass()) {
-                $formResult.removeClass('error');
-                $formResultMessage.text('');
-            }
+            setSuccessMessage('');
 
             let value = buffer.join('').split('-'),
                 leftValue = value[0].trim(),
@@ -49,16 +59,22 @@ $(document).ready(function() {
     $('#ajax').click(function( event ) {
         event.preventDefault();
         if (validateInput()) {
-            let $form = $(this);
             $.ajax({
                 dataType: 'json',
                 type: $form.attr('method'),
                 url: $form.attr('action'),
                 data: $form.serialize()
             }).done(function(result) {
-                console.log('success',result);
+                if (typeof result['error'] !== 'undefined') {
+                    setErrorMessage(result['error']);
+                }
+
+                if (typeof result['result'] !== 'undefined') {
+                    setSuccessMessage(result['result']);
+                }
             }).fail(function(error) {
-                console.log('fail', error);
+                $formResult.addClass('error');
+                $formResultMessage.text('Server Runtime Error');
             });
         }
     });
