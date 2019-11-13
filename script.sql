@@ -6,7 +6,7 @@ create table analytics
     result       int(10),
     durationTime decimal(7, 6),
     leftOperand  datetime     not null,
-    rightOperand datetime     not null,
+    rightOperand datetime     not null
 )
     collate = utf8mb4_unicode_ci;
 

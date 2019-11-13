@@ -12,6 +12,8 @@ services:
       - 12001:80
     depends_on:
       - php
+    networks:
+      - default
   php:
     container_name: np_php
     build: ./docker/php
@@ -22,10 +24,11 @@ services:
       - ~/.ssh:/root/.ssh
       - .:/var/www/np:cached
       - ./docker/runtime/.config/composer:/var/www/.composer
-      - symfony_cache:/tmp/np:rw
     working_dir: /var/www/np
     depends_on:
       - db
+    networks:
+      - default
 
   db:
     container_name: np_db
@@ -39,6 +42,5 @@ services:
       - 3306
     ports:
       - 3310:3306
-
-volumes:
-  symfony_cache:
+    networks:
+      - default

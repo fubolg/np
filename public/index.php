@@ -8,6 +8,6 @@ use App\Core\Application;
 
 require __DIR__ . '/../App/autoload.php';
 
-
-$application = new Application();
+$container = new \App\Core\Container();
+$application = $container->get('App\Core\Application');
 $application->run();

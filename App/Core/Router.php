@@ -8,6 +8,18 @@ class Router
      */
     private $routes;
 
+    private $container;
+
+    /**
+     * Router constructor.
+     *
+     * @param Container $container
+     */
+    public function __construct($container)
+    {
+        $this->container = $container;
+    }
+
     public function route()
     {
         $this->init();
@@ -34,7 +46,7 @@ class Router
                 }
 
                 $explodedAction = explode('::', $route['action']);
-                $controller = new $explodedAction[0]();
+                $controller = $this->container->get($explodedAction[0]);
 
                 if (isset($route['action']) && !empty($route['action'])) {
                     $this->doAction($controller, $explodedAction[1], "Undefined method", $params);

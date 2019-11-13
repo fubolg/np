@@ -7,9 +7,9 @@ class Model
     const MYSQL_DATE_FORMAT = 'Y-m-d H:i:s';
     protected $connection;
 
-    public function __construct()
+    public function __construct($connection)
     {
-        $this->connection = new \PDO('mysql:host=np_db;dbname=np', 'root', 'secret');
+        $this->connection = $connection;
     }
 
     public function insertAnalytics($analytics)

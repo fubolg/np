@@ -73,8 +73,7 @@ $(document).ready(function() {
                     setSuccessMessage(result['result']);
                 }
             }).fail(function(error) {
-                $formResult.addClass('error');
-                $formResultMessage.text('Server Runtime Error');
+                setErrorMessage('Server Runtime Error');
             });
         }
     });

@@ -1,8 +1,6 @@
 <?php
 namespace App\Core;
 
-use App\Model\Model;
-
 abstract class AbstractController
 {
     /**
@@ -12,10 +10,10 @@ abstract class AbstractController
     protected $model;
     protected $layout = 'main.php';
 
-    public function __construct()
+    public function __construct($view, $model)
     {
-        $this->view = new View();
-        $this->model = new Model();
+        $this->view = $view;
+        $this->model = $model;
     }
 
     abstract function actionIndex();
