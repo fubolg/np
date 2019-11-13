@@ -46,6 +46,10 @@ class Container
 
     public function set($key, $param)
     {
+        if (array_key_exists($key, $this->tree)) {
+            throw new \Exception(sprintf('Duplicate Entry `%s` in container', $key));
+        }
+
         $this->tree[$key] = $param;
     }
 
